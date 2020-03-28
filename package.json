@@ -1,0 +1,19 @@
+{
+  "name": "macros",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "https://github.com/hadeeb/macros.git",
+  "author": "Hadeeb Farhan <hadeebfarhan1@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@types/babel-plugin-macros": "^2.8.1",
+    "@types/jest": "^25.1.4",
+    "babel-plugin-macros": "^2.8.0",
+    "babel-test": "^0.2.3",
+    "jest": "^25.2.3"
+  }
+}
