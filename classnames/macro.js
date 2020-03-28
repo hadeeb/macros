@@ -5,16 +5,12 @@ const t = require("@babel/core").types;
 const emptyString = t.stringLiteral("");
 const spacerString = t.stringLiteral(" ");
 
-const configName = "macros/classnames";
-
-module.exports = createMacro(Macro, { configName });
+module.exports = createMacro(Macro);
 
 /**
- * @param {import("babel-plugin-macros").MacroParams & {config:Config}} param0
+ * @param {import("babel-plugin-macros").MacroParams} param0
  */
-function Macro({ references, config }) {
-  config = Object.assign({ loose: true }, config);
-
+function Macro({ references }) {
   const refs = references.default;
 
   if (refs) {
@@ -48,7 +44,7 @@ function Macro({ references, config }) {
             }
           } else {
             if (t.isExpression(arg)) {
-              dynamicPart = getValue(arg, dynamicPart, config);
+              dynamicPart = getValue(arg, dynamicPart);
             }
           }
         });
@@ -56,14 +52,13 @@ function Macro({ references, config }) {
         const hasStatic = staticParts.length > 0;
         const hasDynamic = !!dynamicPart;
 
-        const staticStr = staticParts.join(" ") + (hasDynamic ? " " : "");
-
         /**
          * @type {Expression}
          */
         let replacement;
 
         if (hasStatic) {
+          const staticStr = staticParts.join(" ") + (hasDynamic ? " " : "");
           replacement = t.stringLiteral(staticStr);
         }
 
@@ -82,52 +77,27 @@ function Macro({ references, config }) {
 }
 
 /**
- *
+ * append `arg` to `result`
  * @param {Expression} arg
  * @param {Expression} result
- * @param {Config} config
  */
-function getValue(arg, result, { loose }) {
-  /**
-   * @type Expression
-   */
-  let newVal;
+function getValue(arg, result) {
+  arg =
+    t.isLogicalExpression(arg) && arg.operator === "&&"
+      ? // a && b => a ? b : ""
+        t.conditionalExpression(arg.left, arg.right, emptyString)
+      : arg;
 
-  switch (arg.type) {
-    case "LogicalExpression": {
-      if (arg.operator === "&&") {
-        newVal = t.conditionalExpression(arg.left, arg.right, emptyString);
-      } else {
-        newVal = arg;
-      }
-      break;
-    }
-    case "ConditionalExpression": {
-      newVal = arg;
-      break;
-    }
-    default: {
-      newVal = loose ? arg : t.logicalExpression("||", arg, emptyString);
-    }
-  }
-
-  if (newVal) {
-    if (result) {
-      return createBinary(result, newVal);
-    } else {
-      return newVal;
-    }
-  }
-
-  return result;
+  // result ? result + " " + arg : arg
+  return result ? createBinaryExpression(result, arg) : arg;
 }
 
 /**
- *
+ * `(left,right) => left + " " + right`
  * @param {Expression} left
  * @param {Expression} right
  */
-function createBinary(left, right) {
+function createBinaryExpression(left, right) {
   return t.binaryExpression(
     "+",
     t.binaryExpression("+", left, spacerString),
@@ -138,10 +108,4 @@ function createBinary(left, right) {
 /**
  * @typedef Expression
  * @type {babel.types.Expression}
- */
-
-/**
- * @typedef Config
- * @type {object}
- * @property {boolean} loose
  */
