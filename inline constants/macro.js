@@ -1,6 +1,5 @@
 //@ts-check
 const { createMacro } = require("babel-plugin-macros");
-const { types } = require("@babel/core");
 
 module.exports = { createConstantMacro, objectProperty };
 
@@ -19,8 +18,8 @@ function createConstantMacro(data) {
            */
           let expression;
 
-          if (t.isExpression(x)) {
-            expression = x;
+          if (isPropertyAccess(x)) {
+            expression = getExpression(x);
           } else {
             switch (typeof x) {
               case "bigint":
@@ -44,19 +43,51 @@ function createConstantMacro(data) {
         }
       });
     });
+
+    /**
+     * @param {PropertyAccess} propertyAccess
+     * @returns {Expression}
+     */
+    function getExpression(propertyAccess) {
+      const obj = propertyAccess.obj;
+      return t.memberExpression(
+        isPropertyAccess(obj) ? getExpression(obj) : t.identifier(obj),
+        t.identifier(propertyAccess.prop)
+      );
+    }
   });
 }
 
+const flag = {};
+
 /**
- * @param {string|Expression} objectName
+ * @param {string|PropertyAccess} objectName
  * @param {string} propertyName
+ * @returns {PropertyAccess}
  */
 function objectProperty(objectName, propertyName) {
-  return types.memberExpression(
-    typeof objectName === "string" ? types.identifier(objectName) : objectName,
-    types.identifier(propertyName)
-  );
+  return {
+    type: flag,
+    obj: objectName,
+    prop: propertyName
+  };
 }
+
+/**
+ * @param {any} obj
+ * @returns {obj is PropertyAccess}
+ */
+function isPropertyAccess(obj) {
+  return obj && typeof obj === "object" && obj.type === flag;
+}
+
+/**
+ * @typedef PropertyAccess
+ * @type {object}
+ * @property {typeof flag} type
+ * @property {string|PropertyAccess} obj
+ * @property {string} prop
+ */
 
 /**
  * @typedef Expression

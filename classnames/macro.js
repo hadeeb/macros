@@ -1,16 +1,16 @@
 //@ts-check
 const { createMacro } = require("babel-plugin-macros");
-const t = require("@babel/core").types;
-
-const emptyString = t.stringLiteral("");
-const spacerString = t.stringLiteral(" ");
 
 module.exports = createMacro(Macro);
 
 /**
  * @param {import("babel-plugin-macros").MacroParams} param0
  */
-function Macro({ references }) {
+function Macro({ references, babel }) {
+  const t = babel.types;
+  const emptyString = t.stringLiteral("");
+  const spacerString = t.stringLiteral(" ");
+
   const refs = references.default;
 
   if (refs) {
@@ -74,35 +74,35 @@ function Macro({ references }) {
       }
     });
   }
-}
 
-/**
- * append `arg` to `result`
- * @param {Expression} arg
- * @param {Expression} result
- */
-function getValue(arg, result) {
-  arg =
-    t.isLogicalExpression(arg) && arg.operator === "&&"
-      ? // a && b => a ? b : ""
-        t.conditionalExpression(arg.left, arg.right, emptyString)
-      : arg;
+  /**
+   * append `arg` to `result`
+   * @param {Expression} arg
+   * @param {Expression} result
+   */
+  function getValue(arg, result) {
+    arg =
+      t.isLogicalExpression(arg) && arg.operator === "&&"
+        ? // a && b => a ? b : ""
+          t.conditionalExpression(arg.left, arg.right, emptyString)
+        : arg;
 
-  // result ? result + " " + arg : arg
-  return result ? createBinaryExpression(result, arg) : arg;
-}
+    // result ? result + " " + arg : arg
+    return result ? createBinaryExpression(result, arg) : arg;
+  }
 
-/**
- * `(left,right) => left + " " + right`
- * @param {Expression} left
- * @param {Expression} right
- */
-function createBinaryExpression(left, right) {
-  return t.binaryExpression(
-    "+",
-    t.binaryExpression("+", left, spacerString),
-    right
-  );
+  /**
+   * `(left,right) => left + " " + right`
+   * @param {Expression} left
+   * @param {Expression} right
+   */
+  function createBinaryExpression(left, right) {
+    return t.binaryExpression(
+      "+",
+      t.binaryExpression("+", left, spacerString),
+      right
+    );
+  }
 }
 
 /**
