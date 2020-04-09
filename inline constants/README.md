@@ -2,7 +2,7 @@
 
 ```js
 // env.macro.js
-const { createConstantMacro } = require(".../this/macro");
+const createConstantMacro = require(".../this/macro");
 
 module.exports = createConstantMacro({ BUILD_TIME: Date.now() });
 
