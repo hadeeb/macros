@@ -3,29 +3,27 @@ const { createMacro } = require("babel-plugin-macros");
 
 module.exports = createConstantMacro;
 
+/**
+ * @param {Record<string,string>} data
+ */
 function createConstantMacro(data) {
   return createMacro(function Macro({ references, babel }) {
-    const t = babel.types;
-    const templ = babel.template;
+    const createExpression = babel.template.expression.ast;
 
-    Object.entries(references).forEach(([key, value]) => {
-      value.forEach((ref) => {
-        if (key in data) {
-          const str = data[key];
-          const template = templ(str, {
-            placeholderPattern: false,
-          });
+    for (let key in references) {
+      const refs = references[key];
+      if (key in data) {
+        const str = data[key];
 
-          /**
-           * @type {Expression}
-           */
-          // @ts-ignore
-          const expression = template().expression;
+        const expression = createExpression(str, {
+          placeholderPattern: false,
+        });
 
+        refs.forEach((ref) => {
           ref.replaceWith(expression);
-        }
-      });
-    });
+        });
+      }
+    }
   });
 }
 
