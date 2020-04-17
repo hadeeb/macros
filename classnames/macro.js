@@ -14,7 +14,7 @@ function Macro({ references, babel }) {
   const refs = references.default;
 
   if (refs) {
-    refs.forEach(ref => {
+    refs.forEach((ref) => {
       const { parent, parentPath } = ref;
 
       if (t.isCallExpression(parent)) {
