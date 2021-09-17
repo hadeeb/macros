@@ -7,7 +7,7 @@ const createConstantMacro = require(".../this/macro");
 module.exports = createConstantMacro({ BUILD_TIME: Date.now() });
 
 // somefile.js
-import { BUILD_TIME } from "...env.macro.js";
+import { BUILD_TIME } from ".../path/to/env.macro";
 
 console.log(`Built at ${new Date(BUILD_TIME)}`);
 ```

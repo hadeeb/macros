@@ -10,7 +10,7 @@ module.exports = createExpressionMacro({
 });
 
 // somefile.js
-import { isDevelopment } from "...env.macro.js";
+import { isDevelopment } from".../path/to/env.macro";
 
 if (isDevelopment) {
   console.error(error);
