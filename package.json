@@ -10,12 +10,12 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@types/babel-plugin-macros": "^2.8.1",
-    "@types/jest": "^25.1.4",
-    "babel-plugin-macros": "^2.8.0",
-    "babel-test": "^0.2.3",
-    "jest": "^25.2.3",
-    "prettier": "^2.0.4"
+    "@babel/core": "^7.15.5",
+    "@types/babel-plugin-macros": "^2.8.5",
+    "@types/jest": "^27.0.1",
+    "babel-plugin-macros": "^3.1.0",
+    "babel-test": "^0.2.4",
+    "jest": "^27.2.0",
+    "prettier": "^2.4.1"
   }
 }
